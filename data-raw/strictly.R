@@ -449,7 +449,7 @@ judge_scores <- judge_scores_prelim |>
   mutate(guest_judge_flag = map2_lgl(judge, series_judges, `%!in%`)) |>
   select(-c(starts_with("series_"), total_score))
 
-dances <- select(prelim_output_2, -c(breakdown, weekly_judges))
+
 
 # judge_scores |>
 #   filter(!guest_judge_flag) |>
@@ -505,7 +505,44 @@ dances <- select(prelim_output_2, -c(breakdown, weekly_judges))
 #   filter(tot != breakdown)
 
 
+music <- prelim_output_2 |>
+  select(id, music, theme_detail) |>
+  mutate(
+    music = music |>
+      str_remove_all("\\[[0-9]+\\]") |>
+      str_replace_all("\n(?= *[Aa]ll)", " — ") |>
+      str_replace_all("\n", " ")
+  ) |>
+  separate_longer_delim(
+    music,
+    regex('(\\,| &) (?=(\\"[^\\"]*\\"[^\\"]*)+[^\\"]*$)')
+  ) |>
+  separate_wider_delim(
+    music,
+    regex(" ?\u2014 ?| \u2013 "),
+    names = c("song", "artist"),
+    too_few = "align_start"
+  ) |>
+  group_by(id) |>
+  fill(artist, .direction = "up") |>
+  ungroup() |>
+  mutate(
+    song = song |>
+      str_remove('^"') |>
+      str_remove('"$'),
+    theme_artist = is.na(artist) & !is.na(theme_detail),
+    artist = if_else(
+      is.na(artist),
+      true = paste0('from "', theme_detail, '"'),
+      false = artist
+    ),
+    .keep = "unused"
+  )
+
+dances <- select(prelim_output_2, -c(breakdown, weekly_judges, music))
+
 usethis::use_data(dances, overwrite = TRUE)
 usethis::use_data(judge_scores, overwrite = TRUE)
 usethis::use_data(weekly_judge_lookup, overwrite = TRUE)
 usethis::use_data(couple_lookup, overwrite = TRUE)
+usethis::use_data(music, overwrite = TRUE)
