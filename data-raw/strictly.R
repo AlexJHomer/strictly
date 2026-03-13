@@ -9,7 +9,7 @@ library(rvest)
 
 `%!in%` <- function(x, table) !(x %in% table)
 
-max_series <- 22L
+max_series <- 23L
 
 page_text <- 1L |>
   seq(max_series) |>
@@ -202,7 +202,7 @@ couples_names <- couples |>
   ) |>
   separate_wider_delim(
     c(celebrity, professional_partner),
-    delim = regex("(?<!(Rev\\.|Dr\\.|Judge|DJ)) "),
+    delim = regex("(?<!(Rev\\.|Dr\\.|Judge|DJ|La)) "),
     names = c("first_name", "surname"),
     names_sep = "_",
     too_many = "merge",
@@ -256,7 +256,7 @@ get_weekly_table <- function(series_num, section_index) {
     str_replace_all("<br />", "NEWLINE") |>
     read_html() |>
     html_table() |>
-    map(\(x) rename_with(x, \(y) str_remove(y, "\\[[0-9]+\\]"))) |>
+    map(\(x) rename_with(x, \(y) str_remove(y, "(\\[[0-9]+\\])+"))) |>
     list_rbind() |>
     mutate(
       across(where(is.character), \(x) str_replace_all(x, "NEWLINE", "\n"))
@@ -397,7 +397,11 @@ theme_details <- prelim_output_1 |>
   mutate(
     theme = theme |>
       str_replace_all("_", " ") |>
-      str_to_sentence()
+      str_to_sentence() |>
+      str_replace("bbc", str_to_upper),
+    theme_detail = theme_detail |>
+      str_replace_all("\n", " ") |>
+      str_squish()
   )
 
 test_theme_details <- theme_details |>
@@ -515,7 +519,7 @@ music <- prelim_output_2 |>
   ) |>
   separate_longer_delim(
     music,
-    regex('(\\,| &) (?=(\\"[^\\"]*\\"[^\\"]*)+[^\\"]*$)')
+    regex('(\\,| (&|/)) (?=(\\"[^\\"]*\\"[^\\"]*)+[^\\"]*$)')
   ) |>
   separate_wider_delim(
     music,
@@ -532,17 +536,22 @@ music <- prelim_output_2 |>
       str_remove('"$'),
     theme_artist = is.na(artist) & !is.na(theme_detail),
     artist = if_else(
-      is.na(artist),
+      theme_artist,
       true = paste0('from "', theme_detail, '"'),
       false = artist
     ),
     .keep = "unused"
   )
 
-dances <- select(prelim_output_2, -c(breakdown, weekly_judges, music))
+dances <- prelim_output_2 |>
+  select(-c(breakdown, weekly_judges, music)) |>
+  mutate(
+    instant_dance_flag =
+      series_num == 23L & week_num == 10L & id %!in% judge_scores$id
+  )
 
 usethis::use_data(dances, overwrite = TRUE)
 usethis::use_data(judge_scores, overwrite = TRUE)
-usethis::use_data(weekly_judge_lookup, overwrite = TRUE)
+usethis::use_data(weekly_judges_lookup, overwrite = TRUE)
 usethis::use_data(couple_lookup, overwrite = TRUE)
 usethis::use_data(music, overwrite = TRUE)
