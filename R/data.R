@@ -112,3 +112,59 @@
 #' Attribution-ShareAlike 4.0 International
 #' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 "weekly_judges_lookup"
+
+#' Dataset of couples on \emph{Strictly Come Dancing}
+#'
+#' A dataset of celebrities and their professional partners on the BBC TV series
+#' \emph{Strictly Come Dancing}.
+#'
+#' @format ## `couple_lookup`
+#' A data frame with 330 rows and 4 columns:
+#' \describe{
+#'   \item{series_num}{Series number}
+#'   \item{couple_name}{
+#'     Name of the couple as used on \emph{Strictly}. This will usually be the
+#'     first name of the celebrity, then "&", then the first name of the
+#'     professional dancer.
+#'   }
+#'   \item{celebrity}{Name of celebrity}
+#'   \item{professional_partner}{Name of professional dancer}
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"couple_lookup"
+
+#' Dataset of songs used on \emph{Strictly Come Dancing}
+#'
+#' A dataset of musical pieces as used on \emph{Strictly Come Dancing}.
+#'
+#' @format ## `music`
+#' A data frame with 2,878 rows and 4 columns:
+#' \describe{
+#'   \item{id}{
+#'     ID number for the dance in the `dances` table. Note that, while most
+#'     values appear only once in this table, some appear multiple times when
+#'     a dance was performed to a medley of pieces.
+#'   }
+#'   \item{song}{Name of musical piece}
+#'   \item{artist}{
+#'     Name of original artist, in whose style the piece is typically performed
+#'     (but see `theme_artist`)
+#'   }
+#'   \item{theme_artist}{
+#'     Logical. In some cases the "artist" is not given in the source, and
+#'     instead some other detail is provided—usually this is the name of a wider
+#'     creative work (film, musical, etc.) in which the music is featured. To
+#'     flag this, these cases are indicated by `TRUE` in this column (all other
+#'     rows are `FALSE`).
+#'   }
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"music"
