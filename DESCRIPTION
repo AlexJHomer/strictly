@@ -1,9 +1,13 @@
 Package: strictly
-Title: What the Package Does (One Line, Title Case)
+Title: A datasets of results from the BBC's "Strictly Come Dancing"
 Version: 0.0.0.9001
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+    person("Alex", "Homer-Welch", , "me@alexjhomer.co.uk", role = c("aut", "cre"))
+Description:
+    This data package provides a collection of datasets collating results from
+    the BBC's TV series "Strictly Come Dancing". The main dataset provides
+    scores for all performances, with additional lookup tables for supplementary
+    information like a breakdown of judges' scores.
 License: CC BY-SA 4.0
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
