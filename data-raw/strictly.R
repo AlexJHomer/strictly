@@ -396,12 +396,13 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
         glue::glue() |>
         as.character(),
       false = id
-    )
+    ),
+    music_id = str_sub(id, start = 1, end = 9)
   ) |>
   select(
     -c(group_dance_name, same_group_dance, line_id, orig_ix, ends_with("_pad"))
   ) |>
-  relocate(id)
+  relocate(id, music_id)
 
 themes <- c("film", "broadway_musical", "musical", "country", "celebrating_bbc")
 
@@ -523,8 +524,22 @@ judge_scores <- judge_scores_prelim |>
 #   filter(tot != breakdown)
 
 
-music <- prelim_output_2 |>
-  select(id, music, theme_detail) |>
+music_prelim <- prelim_output_2 |>
+  select(music_id, music, theme_detail) |>
+  distinct()
+
+music_prelim_test <- music_prelim |>
+  count(music_id) |>
+  filter(n > 1) |>
+  nrow() |>
+  is_greater_than(0)
+
+if (music_prelim_test) {
+  stop(
+    "Some things identified as simultaneous performances have different music.")
+}
+
+music <- music_prelim |>
   mutate(
     music = music |>
       str_remove_all("\\[[0-9]+\\]") |>
@@ -541,7 +556,7 @@ music <- prelim_output_2 |>
     names = c("song", "artist"),
     too_few = "align_start"
   ) |>
-  group_by(id) |>
+  group_by(music_id) |>
   fill(artist, .direction = "up") |>
   ungroup() |>
   mutate(

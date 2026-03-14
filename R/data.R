@@ -7,12 +7,18 @@
 #' A data frame with 2,832 rows and 17 columns:
 #' \describe{
 #'   \item{id}{
-#'     A unique ID number for each "dance". Each dance can only have one
-#'     couple performing. For most dances, the format is `S00W00D00`, where the
-#'     `00`s are replaced by the series, week, and dance number in sequence. For
-#'     dances where the multiple couples danced simultaneously (e.g. the
-#'     "Swing-a-thon"), the format is `S00W00D00X00`, where the last two digits
-#'     distinguish the different performers in the same dance.
+#'     A unique ID number for each "dance" (a row of the table). Each dance can
+#'     only have one couple performing. For most dances, the format is
+#'     `S00W00D00`, where the `00`s are replaced by the series, week, and dance
+#'     number in sequence. For dances where the multiple couples danced
+#'     simultaneously (e.g. the "Swing-a-thon"), the format is `S00W00D00X00`,
+#'     where the last two digits distinguish the different performers in the
+#'     same dance.
+#'   }
+#'   \item{music_id}{
+#'     A unique ID number for each piece of music to which a dance is performed.
+#'     This is the same as the ID but without the `X00` part, if any, so that
+#'     simultaneous performances have the same `music_id`.
 #'   }
 #'   \item{series_num}{Series number}
 #'   \item{week_num}{Week number}
@@ -142,12 +148,13 @@
 #' A dataset of musical pieces as used on \emph{Strictly Come Dancing}.
 #'
 #' @format ## `music`
-#' A data frame with 2,878 rows and 4 columns:
+#' A data frame with 2,814 rows and 4 columns:
 #' \describe{
-#'   \item{id}{
-#'     ID number for the dance in the `dances` table. Note that, while most
-#'     values appear only once in this table, some appear multiple times when
-#'     a dance was performed to a medley of pieces.
+#'   \item{music_id}{
+#'     ID number for the music performed, corresponding to the value of the same
+#'     name in the `dances` table. Note that, while most values appear only once
+#'     in this table, some appear multiple times when a dance was performed to a
+#'     medley of pieces.
 #'   }
 #'   \item{song}{Name of musical piece}
 #'   \item{artist}{
