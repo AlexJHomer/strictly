@@ -387,10 +387,14 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
       \(x) str_pad(x, 2, side = "left", pad = "0"),
       .names = "{.col}_pad"
     ),
-    id = glue::glue("S{series_num_pad}W{week_num_pad}D{dance_num_pad}"),
+    id = "S{series_num_pad}W{week_num_pad}D{dance_num_pad}" |>
+      glue::glue() |>
+      as.character(),
     id = if_else(
       group_dance_flag,
-      true = glue::glue("{id}X{line_id_pad}"),
+      true = "{id}X{line_id_pad}" |>
+        glue::glue() |>
+        as.character(),
       false = id
     )
   ) |>
