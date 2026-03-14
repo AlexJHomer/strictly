@@ -209,9 +209,10 @@ couples_names <- couples |>
     too_few = "align_start",
     cols_remove = FALSE
   ) |>
-  group_by(series_num, celebrity_first_name) |>
-  mutate(n_celebs = n_distinct(celebrity_celebrity)) |>
-  ungroup() |>
+  mutate(
+    n_celebs = n_distinct(celebrity_celebrity),
+    .by = c(series_num, celebrity_first_name)
+  ) |>
   mutate(
     start_of_couple_name = if_else(
       n_celebs == 1,
@@ -336,7 +337,8 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
       str_replace_all("[“”]", '"'),
     scores = scores |>
       str_replace_all("\n", " "),
-    scores = if_else(scores == "No scores received", true = NA, false = scores)
+    scores = if_else(scores == "No scores received", true = NA, false = scores),
+    result = if_else(str_detect(result, '^"'), true = NA, false = result)
   ) |>
   separate_wider_regex(
     week,
@@ -348,17 +350,25 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
     week_num = as.integer(week_num),
     week_descrip = str_remove_all(week_descrip, "</?i>")
   ) |>
+  mutate(
+    result = if (length(unique(result[!is.na(result)])) == 1) {
+      unique(result[!is.na(result)])
+    } else {
+      result
+    },
+    .by = c(series_num, week_num, couple_name)
+  ) |>
   left_join(weekly_judges_lookup, by = c("series_num", "week_num")) |>
   add_count(series_num, week_num, celebrity, name = "n_dances") |>
-  group_by(series_num, week_num, celebrity) |>
-  mutate(nth_dance = seq_along(series_num)) |>
-  ungroup() |>
+  mutate(
+    nth_dance = seq_along(series_num),
+    .by = c(series_num, week_num, celebrity)
+  ) |>
   arrange(series_num, week_num, nth_dance, orig_ix) |>
   mutate(
     group_dance_flag = str_detect(str_to_lower(dance), "thon|group"),
     group_dance_name = if_else(group_dance_flag, true = dance, false = NA)
   ) |>
-  group_by(series_num, week_num) |>
   mutate(
     same_group_dance = group_dance_flag & !is.na(lag(group_dance_name)) &
       group_dance_name == lag(group_dance_name),
@@ -367,9 +377,9 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
       group_dance_flag,
       true = cumsum(group_dance_flag),
       false = NA
-    )
+    ),
+    .by = c(series_num, week_num)
   ) |>
-  ungroup() |>
   mutate(
     across(
       c(series_num, week_num, dance_num, line_id),
@@ -438,8 +448,7 @@ judge_scores_prelim <- prelim_output_2 |>
   mutate(score = as.integer(score))
 
 judge_score_test <- judge_scores_prelim |>
-  group_by(id) |>
-  summarise(total_score = unique(total_score), score = sum(score)) |>
+  summarise(total_score = unique(total_score), score = sum(score), .by = id) |>
   filter(total_score != score) |>
   nrow() |>
   is_greater_than(0)
