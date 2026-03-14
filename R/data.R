@@ -18,19 +18,19 @@
 #'   \item{week_num}{Week number}
 #'   \item{week_descrip}{The theme or special description of the week, if any}
 #'   \item{couple_name}{
-#'     The name of the couple as used on \emph{Strictly}. This will usually be
-#'     the first name of the celebrity, then "&", then the first name of the
+#'     Name of the couple as used on \emph{Strictly}. This will usually be the
+#'     first name of the celebrity, then "&", then the first name of the
 #'     professional dancer.
 #'   }
 #'   \item{total_score}{The total score received from the judges for that dance}
 #'   \item{dance}{The dance style (e.g. "Cha-cha")}
 #'   \item{result}{
-#'     The outcome of that week's show(s) for that couple. This may be blank if
-#'     no couple was eliminated.
+#'     Outcome of that week's show(s) for that couple. This may be `NA` if no
+#'     couple was eliminated.
 #'   }
 #'   \item{n_judges}{
-#'     The number of judges awarded scores that week. Does not count "mentors"
-#'     who sit on the panel but do not award scores.
+#'     Number of judges awarding scores that week. Does not count "mentors" who
+#'     sat on the panel but did not award scores.
 #'   }
 #'   \item{nth_dance}{
 #'     Which number dance this is for the couple in question in the week in
@@ -62,3 +62,53 @@
 #' Attribution-ShareAlike 4.0 International
 #' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 "dances"
+
+#' \emph{Strictly Come Dancing} dataset of judges' scores
+#'
+#' A dataset of individual judges' scores on the BBC TV series \emph{Strictly
+#' Come Dancing}.
+#'
+#' @format ## `judge_scores`
+#' A data frame with 10,913 rows and 4 columns:
+#' \describe{
+#'   \item{id}{ID number for the dance in the `dances` table}
+#'   \item{judge}{Judge name}
+#'   \item{score}{Score: an integer from 1 to 10}
+#'   \item{guest_judge_flag}{
+#'     Logical: `TRUE` for guest judges that were not considered one of the
+#'     "main" judges for the series, and `FALSE` otherwise
+#'   }
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"judge_scores"
+
+#' Dataset of \emph{Strictly Come Dancing} judges
+#'
+#' A dataset of which judges awarded scores in each week, for BBC TV series
+#' \emph{Strictly Come Dancing}.
+#'
+#' @format ## `weekly_judges_lookup`
+#' A data frame with 279 rows and 4 columns:
+#' \describe{
+#'   \item{series_num}{Series number}
+#'   \item{week_num}{Week number}
+#'   \item{weekly_judges}{
+#'     A list column. Each row's entry in the list is a factor, giving the names
+#'     of the relevant judges on the panel. Does not count "mentors" who sat on
+#'     the panel but did not award scores.
+#'   }
+#'   \item{n_judges}{
+#'     Number of judges awarding scores that week. Does not count "mentors" who
+#'     sat on the panel but did not award scores.
+#'   }
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"weekly_judges_lookup"

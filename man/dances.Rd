@@ -21,19 +21,19 @@ distinguish the different performers in the same dance.
 \item{week_num}{Week number}
 \item{week_descrip}{The theme or special description of the week, if any}
 \item{couple_name}{
-The name of the couple as used on \emph{Strictly}. This will usually be
-the first name of the celebrity, then "&", then the first name of the
+Name of the couple as used on \emph{Strictly}. This will usually be the
+first name of the celebrity, then "&", then the first name of the
 professional dancer.
 }
 \item{total_score}{The total score received from the judges for that dance}
 \item{dance}{The dance style (e.g. "Cha-cha")}
 \item{result}{
-The outcome of that week's show(s) for that couple. This may be blank if
-no couple was eliminated.
+Outcome of that week's show(s) for that couple. This may be \code{NA} if no
+couple was eliminated.
 }
 \item{n_judges}{
-The number of judges awarded scores that week. Does not count "mentors"
-who sit on the panel but do not award scores.
+Number of judges awarding scores that week. Does not count "mentors" who
+sat on the panel but did not award scores.
 }
 \item{nth_dance}{
 Which number dance this is for the couple in question in the week in
