@@ -10,12 +10,18 @@
 A data frame with 2,832 rows and 17 columns:
 \describe{
 \item{id}{
-A unique ID number for each "dance". Each dance can only have one
-couple performing. For most dances, the format is \code{S00W00D00}, where the
-\code{00}s are replaced by the series, week, and dance number in sequence. For
-dances where the multiple couples danced simultaneously (e.g. the
-"Swing-a-thon"), the format is \code{S00W00D00X00}, where the last two digits
-distinguish the different performers in the same dance.
+A unique ID number for each "dance" (a row of the table). Each dance can
+only have one couple performing. For most dances, the format is
+\code{S00W00D00}, where the \code{00}s are replaced by the series, week, and dance
+number in sequence. For dances where the multiple couples danced
+simultaneously (e.g. the "Swing-a-thon"), the format is \code{S00W00D00X00},
+where the last two digits distinguish the different performers in the
+same dance.
+}
+\item{music_id}{
+A unique ID number for each piece of music to which a dance is performed.
+This is the same as the ID but without the \code{X00} part, if any, so that
+simultaneous performances have the same \code{music_id}.
 }
 \item{series_num}{Series number}
 \item{week_num}{Week number}
@@ -57,6 +63,13 @@ is not one of the possible values of \code{theme}—use \code{week_descrip} inst
 \item{instant_dance_flag}{
 Logical: indicates whether or not the dance in question was an "Instant
 Dance"
+}
+\item{dance_off_flag}{
+Logical: indicates whether or not that couple was in a dance-off that
+week. Caution: in the case that a couple performs more than one dance in
+a week, this \emph{does not} identify which dance was actually performed
+in the dance-off. Instead, all of that couple's dances for the week will
+have the flag.
 }
 }
 }

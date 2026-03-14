@@ -7,12 +7,13 @@
 \format{
 \subsection{\code{music}}{
 
-A data frame with 2,878 rows and 4 columns:
+A data frame with 2,814 rows and 4 columns:
 \describe{
-\item{id}{
-ID number for the dance in the \code{dances} table. Note that, while most
-values appear only once in this table, some appear multiple times when
-a dance was performed to a medley of pieces.
+\item{music_id}{
+ID number for the music performed, corresponding to the value of the same
+name in the \code{dances} table. Note that, while most values appear only once
+in this table, some appear multiple times when a dance was performed to a
+medley of pieces.
 }
 \item{song}{Name of musical piece}
 \item{artist}{
@@ -37,6 +38,7 @@ articles for earlier series. Used under the \href{https://creativecommons.org/li
 music
 }
 \description{
-A dataset of musical pieces as used on \emph{Strictly Come Dancing}.
+A dataset of musical pieces as used on the BBC TV series \emph{Strictly Come
+Dancing}.
 }
 \keyword{datasets}

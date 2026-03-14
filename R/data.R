@@ -61,6 +61,13 @@
 #'     Logical: indicates whether or not the dance in question was an "Instant
 #'     Dance"
 #'   }
+#'   \item{dance_off_flag}{
+#'     Logical: indicates whether or not that couple was in a dance-off that
+#'     week. Caution: in the case that a couple performs more than one dance in
+#'     a week, this \emph{does not} identify which dance was actually performed
+#'     in the dance-off. Instead, all of that couple's dances for the week will
+#'     have the flag.
+#'   }
 #' }
 #' @source Wikipedia contributors, [Strictly Come Dancing series
 #' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
@@ -145,7 +152,8 @@
 
 #' Dataset of songs used on \emph{Strictly Come Dancing}
 #'
-#' A dataset of musical pieces as used on \emph{Strictly Come Dancing}.
+#' A dataset of musical pieces as used on the BBC TV series \emph{Strictly Come
+#' Dancing}.
 #'
 #' @format ## `music`
 #' A data frame with 2,814 rows and 4 columns:
@@ -175,3 +183,37 @@
 #' Attribution-ShareAlike 4.0 International
 #' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 "music"
+
+#' Dataset of votes in \emph{Strictly Come Dancing}'s dance-offs
+#'
+#' A dataset of the votes cast by each judge in the dance-off on the BBC TV
+#' series \emph{Strictly Come Dancing}.
+#'
+#' @format ## `dance_offs`
+#' A data frame with 714 rows and 6 columns:
+#' \describe{
+#'   \item{series_num}{Series number}
+#'   \item{week_num}{Week number}
+#'   \item{judge}{Judge name}
+#'   \item{vote}{
+#'     Couple that the judge in question voted to \emph{save} in the dance-off
+#'   }
+#'   \item{actually_voted_flag}{
+#'     Logical: `TRUE` if the judge in question cast a vote before the result
+#'     was known (i.e. up to the point where a majority of judges had voted for
+#'     one couple), and `FALSE` if the judge in question was asked once the
+#'     result was announced how they would have voted.
+#'   }
+#'   \item{casting_vote}{
+#'     Logical: indicates whether or not the judge held that week's casting
+#'     vote. Until Series 23, this was the same judge every week, who was termed
+#'     the 'head judge'. From Series 23 onwards, this role was allocated to a
+#'     different judge each week.
+#'   }
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"dance_offs"

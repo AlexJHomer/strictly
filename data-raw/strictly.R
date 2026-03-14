@@ -11,6 +11,14 @@ library(rvest)
 
 max_series <- 23L
 
+head_judge_lookup_prelim <- tibble(series_num = 1:max_series) |>
+  mutate(
+    head_judge = case_when(
+      series_num <= 14L ~ "Len Goodman",
+      series_num <= 22L ~ "Shirley Ballas"
+    )
+  )
+
 page_text <- 1L |>
   seq(max_series) |>
   (\(x) paste("Strictly Come Dancing series", x))() |>
@@ -128,6 +136,9 @@ guest_judge_list <- map(
 poss_judges_all <- poss_judges |>
   c(poss_guest_judges) |>
   unique()
+
+head_judge_lookup <- head_judge_lookup_prelim |>
+  mutate(head_judge = factor(head_judge, levels = poss_judges_all))
 
 get_section_table <- function(num) {
   GET(
@@ -286,13 +297,16 @@ uncleaned_scraped_weekly_wikitext <- series_sections |>
   ) |>
   unnest_longer(wikitext)
 
-weekly_judges_lookup <- uncleaned_scraped_weekly_wikitext |>
+weekly_wikitext_with_weeks <- uncleaned_scraped_weekly_wikitext |>
   left_join(judges_in_order_lookup, by = "series_num") |>
   rename(week = line) |>
   mutate(
-    week_num = week |>
-      str_extract("(?<=^Week )[0-9]+") |>
-      as.integer(),
+    week_num = week |> str_extract("(?<=^Week )[0-9]+") |> as.integer(),
+    .after = series_num
+  )
+
+weekly_judges_lookup <- weekly_wikitext_with_weeks |>
+  mutate(
     series_judges = series_judges |>
       map(\(x) fct_expand(x, poss_judges_all)),
     weekly_judges = wikitext |>
@@ -572,15 +586,142 @@ music <- music_prelim |>
     .keep = "unused"
   )
 
-dances <- prelim_output_2 |>
+prelim_output_3 <- prelim_output_2 |>
   select(-c(breakdown, weekly_judges, music, celebrity)) |>
   mutate(
     instant_dance_flag =
       series_num == 23L & week_num == 10L & id %!in% judge_scores$id
   )
 
+dance_off_lookup <- weekly_wikitext_with_weeks |>
+  mutate(
+    dance_off_flag = wikitext |> str_to_lower() |> str_detect("votes to save")
+  ) |>
+  select(series_num, week_num, dance_off_flag)
+
+dance_off_participants <- prelim_output_3 |>
+  semi_join(
+    dance_off_lookup |> filter(dance_off_flag),
+    by = c("series_num", "week_num")
+  ) |>
+  filter(result %in% c("Eliminated", "Bottom two")) |>
+  distinct(series_num, week_num, couple_name)
+
+dance_off_participants_stop <- dance_off_participants |>
+  count(series_num, week_num) |>
+  filter(n != 2L) |>
+  nrow() |>
+  is_greater_than(0L)
+
+if (dance_off_participants_stop) {
+  stop("Some dance-offs do not have exactly two participating couples.")
+}
+
+dance_off_votes_prelim <- weekly_wikitext_with_weeks |>
+  semi_join(
+    dance_off_lookup |> filter(dance_off_flag),
+    by = c("series_num", "week_num")
+  ) |>
+  mutate(
+    dance_off_section = wikitext |>
+      str_extract("votes to save:?(\\<[^\\<\\>]*\\>)?\n(.|\n)+") |>
+      str_remove("^votes to save:?(\\<[^\\<\\>]*\\>)?\n"),
+    casting_vote = wikitext |>
+      str_extract("(?<=\\[\\[)[A-Za-z ]+(?=\\]\\] had the casting vote)") |>
+      factor(levels = poss_judges_all)
+  ) |>
+  left_join(head_judge_lookup, by = "series_num") |>
+  mutate(
+    casting_vote = if_else(is.na(casting_vote), head_judge, casting_vote)
+  ) |>
+  separate_longer_delim(dance_off_section, "\n") |>
+  mutate(dance_off_section = str_remove(dance_off_section, "\\<ref.*$")) |>
+  separate_wider_delim(
+    dance_off_section,
+    names = c("judge", "vote"),
+    delim = regex(": ?")
+  ) |>
+  mutate(
+    judge = judge |>
+      str_remove("^\\*") |>
+      str_squish()
+  ) |>
+  left_join(weekly_judges_lookup, by = c("series_num", "week_num")) |>
+  unnest_longer(weekly_judges) |>
+  mutate(
+    judge_match = str_detect(weekly_judges, paste0(str_escape(judge), "$"))
+  )
+
+dance_off_votes_stop <- dance_off_votes_prelim |>
+  summarise(test = sum(judge_match), .by = c(series_num, week_num, judge)) |>
+  filter(test != 1L) |>
+  nrow() |>
+  is_greater_than(0L)
+
+if (dance_off_votes_stop) {
+  stop(
+    "Some judge names in the dance-off votes match with multiple judges ",
+    "or with none."
+  )
+}
+
+dance_off_votes_prelim_2 <- dance_off_votes_prelim |>
+  filter(judge_match) |>
+  select(series_num, week_num, judge = weekly_judges, casting_vote, vote) |>
+  mutate(
+    vote = vote |>
+      str_remove("^'*") |>
+      str_remove("\\.?'*$") |>
+      str_remove(" '*\\([^\\(\\)]*\\)$") |>
+      str_replace(" and ", " & ") |>
+      str_squish(),
+    actually_voted_flag = !str_detect(vote, "Did not vote"),
+    vote = if_else(
+      actually_voted_flag,
+      true = vote,
+      false = str_extract(vote, "(?<=(for|to save) ).*$")
+    )
+  )
+
+dance_off_couple_stop <- dance_off_votes_prelim_2 |>
+  anti_join(couple_lookup, by = c("series_num", "vote" = "couple_name")) |>
+  nrow() |>
+  is_greater_than(1L)
+
+if (dance_off_couple_stop) {
+  stop("Some votes have not been correctly parsed.")
+}
+
+dance_off_casting_stop <- dance_off_votes_prelim_2 |>
+  summarise(
+    n_casting = sum(casting_vote == judge),
+    .by = c(series_num, week_num)
+  ) |>
+  filter(n_casting != 1L) |>
+  nrow() |>
+  is_greater_than(1L)
+
+if (dance_off_casting_stop) {
+  stop(
+    "Some weeks with a dance-off do not (uniquely) identify the judge with ",
+    "the casting vote."
+  )
+}
+
+dance_offs <- dance_off_votes_prelim_2 |>
+  mutate(casting_vote_flag = judge == casting_vote) |>
+  select(-casting_vote)
+
+dances <- prelim_output_3 |>
+  left_join(
+    dance_off_participants |> mutate(dance_off_flag = TRUE),
+    by = c("series_num", "week_num", "couple_name")
+  ) |>
+  replace_na(replace = list(dance_off_flag = FALSE))
+
 usethis::use_data(dances, overwrite = TRUE)
 usethis::use_data(judge_scores, overwrite = TRUE)
 usethis::use_data(weekly_judges_lookup, overwrite = TRUE)
 usethis::use_data(couple_lookup, overwrite = TRUE)
 usethis::use_data(music, overwrite = TRUE)
+usethis::use_data(dance_offs, overwrite = TRUE)
