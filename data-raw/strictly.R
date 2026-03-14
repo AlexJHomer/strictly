@@ -334,7 +334,8 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
     dance = dance |>
       str_replace_all("\n", " ") |>
       str_replace_all("[‘’]", "'") |>
-      str_replace_all("[“”]", '"'),
+      str_replace_all("[“”]", '"') |>
+      str_replace_all("(?<!^|(&|Group|Lindy) |\\(|/).", str_to_lower),
     scores = scores |>
       str_replace_all("\n", " "),
     scores = if_else(scores == "No scores received", true = NA, false = scores),
@@ -553,7 +554,7 @@ music <- prelim_output_2 |>
   )
 
 dances <- prelim_output_2 |>
-  select(-c(breakdown, weekly_judges, music)) |>
+  select(-c(breakdown, weekly_judges, music, celebrity)) |>
   mutate(
     instant_dance_flag =
       series_num == 23L & week_num == 10L & id %!in% judge_scores$id
