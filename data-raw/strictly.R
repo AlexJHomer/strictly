@@ -455,6 +455,7 @@ prelim_output_2 <- prelim_output_1 |>
     too_many = "merge"
   ) |>
   mutate(
+    total_score = as.integer(total_score),
     breakdown = breakdown |>
       str_remove_all("[()]") |>
       str_split(", ?")
