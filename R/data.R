@@ -99,20 +99,49 @@
 #' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
 "judge_scores"
 
-#' Dataset of \emph{Strictly Come Dancing} judges
+#' Dataset of \emph{Strictly Come Dancing} judges, by series
+#'
+#' A dataset of which judges were the "main" judges for each series of the BBC
+#' TV series \emph{Strictly Come Dancing}.
+#'
+#' @format ## `series_judges_lookup`
+#' A data frame with 91 rows and 4 columns:
+#' \describe{
+#'   \item{series_num}{Series number}
+#'   \item{judge}{
+#'     One of the "main" judges for that series. Judges are shown in separate
+#'     rows. Counts neither guest judges, nor "mentors" who sat on the panel but
+#'     did not award scores.
+#'   }
+#'   \item{head_judge_flag}{
+#'     Logical: was that judge the head judge for the series? `FALSE` for all
+#'     judges if there was no head judge.
+#'   }
+#'   \item{n_judges}{
+#'     Number of judges awarding scores that week. Does not count "mentors" who
+#'     sat on the panel but did not award scores.
+#'   }
+#' }
+#' @source Wikipedia contributors, [Strictly Come Dancing series
+#' 23](https://en.wikipedia.org/wiki/Strictly_Come_Dancing_series_23), and
+#' articles for earlier series. Used under the [Creative Commons
+#' Attribution-ShareAlike 4.0 International
+#' licence](https://creativecommons.org/licenses/by-sa/4.0/deed.en).
+"series_judges_lookup"
+
+#' Dataset of \emph{Strictly Come Dancing} judges, by series and week
 #'
 #' A dataset of which judges awarded scores in each week, for BBC TV series
 #' \emph{Strictly Come Dancing}.
 #'
 #' @format ## `weekly_judges_lookup`
-#' A data frame with 279 rows and 4 columns:
+#' A data frame with 1,110 rows and 4 columns:
 #' \describe{
 #'   \item{series_num}{Series number}
 #'   \item{week_num}{Week number}
-#'   \item{weekly_judges}{
-#'     A list column. Each row's entry in the list is a factor, giving the names
-#'     of the relevant judges on the panel. Does not count "mentors" who sat on
-#'     the panel but did not award scores.
+#'   \item{judge}{
+#'     One of the judges for that week. Judges are shown in separate rows. Does
+#'     not count "mentors" who sat on the panel but did not award scores.
 #'   }
 #'   \item{n_judges}{
 #'     Number of judges awarding scores that week. Does not count "mentors" who

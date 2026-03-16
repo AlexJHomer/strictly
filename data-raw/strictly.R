@@ -140,6 +140,16 @@ poss_judges_all <- poss_judges |>
 head_judge_lookup <- head_judge_lookup_prelim |>
   mutate(head_judge = factor(head_judge, levels = poss_judges_all))
 
+series_judges_lookup <- judge_list |>
+  map(\(x) factor(x, levels = poss_judges_all)) |>
+  tibble(series_judges = _) |>
+  mutate(series_num = seq_along(series_judges), .before = 1) |>
+  unnest_longer(series_judges, values_to = "judge") |>
+  left_join(head_judge_lookup, by = "series_num") |>
+  mutate(head_judge_flag = judge == head_judge) |>
+  add_count(series_num, name = "n_judges") |>
+  select(-head_judge)
+
 get_section_table <- function(num) {
   GET(
     url = "https://en.wikipedia.org/w/api.php",
@@ -305,7 +315,7 @@ weekly_wikitext_with_weeks <- uncleaned_scraped_weekly_wikitext |>
     .after = series_num
   )
 
-weekly_judges_lookup <- weekly_wikitext_with_weeks |>
+weekly_judges_lookup_factors <- weekly_wikitext_with_weeks |>
   mutate(
     series_judges = series_judges |>
       map(\(x) fct_expand(x, poss_judges_all)),
@@ -325,6 +335,8 @@ weekly_judges_lookup <- weekly_wikitext_with_weeks |>
   ) |>
   select(series_num, week_num, weekly_judges, n_judges)
 
+weekly_judges_lookup <- weekly_judges_lookup_factors |>
+  unnest_longer(weekly_judges, values_to = "judge")
 
 prelim_output_1 <- uncleaned_scraped_weekly_results |>
   select(
@@ -373,7 +385,7 @@ prelim_output_1 <- uncleaned_scraped_weekly_results |>
     },
     .by = c(series_num, week_num, couple_name)
   ) |>
-  left_join(weekly_judges_lookup, by = c("series_num", "week_num")) |>
+  left_join(weekly_judges_lookup_factors, by = c("series_num", "week_num")) |>
   add_count(series_num, week_num, celebrity, name = "n_dances") |>
   mutate(
     nth_dance = seq_along(series_num),
@@ -647,7 +659,7 @@ dance_off_votes_prelim <- weekly_wikitext_with_weeks |>
       str_remove("^\\*") |>
       str_squish()
   ) |>
-  left_join(weekly_judges_lookup, by = c("series_num", "week_num")) |>
+  left_join(weekly_judges_lookup_factors, by = c("series_num", "week_num")) |>
   unnest_longer(weekly_judges) |>
   mutate(
     judge_match = str_detect(weekly_judges, paste0(str_escape(judge), "$"))
@@ -722,6 +734,7 @@ dances <- prelim_output_3 |>
 
 usethis::use_data(dances, overwrite = TRUE)
 usethis::use_data(judge_scores, overwrite = TRUE)
+usethis::use_data(series_judges_lookup, overwrite = TRUE)
 usethis::use_data(weekly_judges_lookup, overwrite = TRUE)
 usethis::use_data(couple_lookup, overwrite = TRUE)
 usethis::use_data(music, overwrite = TRUE)
