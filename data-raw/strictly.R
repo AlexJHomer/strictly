@@ -595,7 +595,9 @@ music <- music_prelim |>
       theme_artist,
       true = paste0('from "', theme_detail, '"'),
       false = artist
-    ),
+    ) |>
+      str_remove("^[Aa]ll (?=from )") |>
+      str_replace('(?<=^from )([^"]+)', '"\\1"'),
     .keep = "unused"
   )
 
