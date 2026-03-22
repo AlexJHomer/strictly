@@ -596,7 +596,10 @@ music <- music_prelim |>
       true = paste0('from "', theme_detail, '"'),
       false = artist
     ) |>
-      str_remove("^[Aa]ll (?=from )") |>
+      str_remove("^[Aa]ll (?=(from|by) )") |>
+      str_remove("^by ") |>
+      str_remove("^the (?=Backstreet Boys$)") |>
+      str_replace("t(?=he Weeknd)", "T") |>
       str_replace('(?<=^from )([^"]+)', '"\\1"'),
     .keep = "unused"
   )
